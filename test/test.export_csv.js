@@ -2,11 +2,11 @@ var assert = require('assert');
 var listToCSVString = require('./../responses.js').listToCSVString;
 var filterToMostRecent = require('./../responses.js').filterToMostRecent;
 var filterAllResults = require('./../responses.js').filterAllResults;
-var filterToOneRowPerUse = require('./../responses.js').filterToOneRowPerUse;
-  
+var CSVWriter = require('./../responses.js').CSVWriter;
+
   
 suite('In csvExport,', function(){
-  var row = ['a', 2, '3'];
+  var row = ['a', 2, undefined];
   var headers = ['first', 'second', 'third'];
   var headerCount = {
     'first': 1,
@@ -23,7 +23,9 @@ suite('In csvExport,', function(){
   var fakeResults = [
     // These two have the same parcel ID, but the first is more recent
     {
-      "geo_info": {},
+      "geo_info": {
+        "centroid": [1,2]
+      },
       "parcel_id": "1234",
       "created":"2011-05-24T23:16:57.266Z",
       "responses": {
@@ -31,10 +33,12 @@ suite('In csvExport,', function(){
         "use":"restaurant-or-bar",
         "restaurant-use":"restaurant"
       },
-      'older': true,
+      'older': true
     },
     {
-      "geo_info": {},
+      "geo_info": {
+        "centroid": [1,2]
+      },
       "parcel_id": "1234",
       "created":"2012-05-24T23:16:57.266Z",
       "responses": {
@@ -42,7 +46,7 @@ suite('In csvExport,', function(){
         "use":"service",
         "service-use":"bank+drivethrough"
       },
-      'older': false,
+      'older': false
     },
     
     // In some cases, this one should be split into two rows because there are multiple uses.
@@ -63,7 +67,7 @@ suite('In csvExport,', function(){
   
   test('commasep should turn a simple list into a csv string', function(){
     var csv = listToCSVString(row, headers, headerCount);
-    var expected = 'a,2,3';
+    var expected = 'a,2,';
     assert.equal(csv,expected);
   });
   
@@ -91,14 +95,6 @@ suite('In csvExport,', function(){
       assert(false);
     };
   });
-  
-  test('the filterToOneRowPerUse should split results with use_counts > 1 into n rows', function() {
-    var filteredResults = filterToOneRowPerUse(fakeResults);
-    console.log(filteredResults);
-    if(filteredResults[3] == undefined){
-      assert(false);
-    };
-  });
-  
-  
+    
 });
+
